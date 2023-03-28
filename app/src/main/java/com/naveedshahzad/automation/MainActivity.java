@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                //wvChrome.loadUrl(etLink.getText().toString());
+                wvChrome.loadUrl(etLink.getText().toString());
             }
         });
     }
