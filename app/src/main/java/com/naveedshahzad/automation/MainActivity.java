@@ -1,18 +1,25 @@
 package com.naveedshahzad.automation;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -28,6 +35,8 @@ import java.io.InputStreamReader;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_SETTINGS = 100;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_SECURE_SETTINGS = 101;
     private EditText etLink;
     private EditText etCount;
     private Button btStart;
@@ -48,7 +57,14 @@ public class MainActivity extends AppCompatActivity {
         context = this;
         deviceName = Build.MODEL;
 
-         resources = getResources();
+
+        checkPermission(Manifest.permission.WRITE_SETTINGS,MY_PERMISSIONS_REQUEST_WRITE_SETTINGS);
+        checkPermission(Manifest.permission.WRITE_SECURE_SETTINGS,MY_PERMISSIONS_REQUEST_WRITE_SECURE_SETTINGS);
+
+
+
+
+        resources = getResources();
          inputStream = resources.openRawResource(R.raw.common);
 
         etLink = findViewById(R.id.etLink);
@@ -76,6 +92,12 @@ public class MainActivity extends AppCompatActivity {
                 injectJavaScript(view);
 
             }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                view.loadUrl(request.getUrl().toString());
+                return true;
+            }
         });
         wvChrome.addJavascriptInterface(new JSBridge(this), "JSBridge");
 
@@ -85,12 +107,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(context, "Working Button", Toast.LENGTH_LONG).show();
+                //setAirplaneMode(false);
                 try {
                     readJsFile();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                wvChrome.loadUrl(etLink.getText().toString());
+                //wvChrome.loadUrl(etLink.getText().toString());
             }
         });
     }
@@ -113,6 +136,32 @@ public class MainActivity extends AppCompatActivity {
         }
         commonJsFile = stringBuilder.toString();
 
+    }
+
+    public void setAirplaneMode(boolean isEnabled) {
+        // Set the airplane mode on/off
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+        } else {
+            Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+        }
+
+
+        // Broadcast an intent to inform other applications of the airplane mode change
+        Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        intent.putExtra("state", isEnabled);
+        context.sendBroadcast(intent);
+    }
+
+    public void checkPermission(String permission, int requestCode)
+    {
+        // Checking if permission is not granted
+        if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[] { permission }, requestCode);
+        }
+        else {
+            Toast.makeText(MainActivity.this, "Permission already granted", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

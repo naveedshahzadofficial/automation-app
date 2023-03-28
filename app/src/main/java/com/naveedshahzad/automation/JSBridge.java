@@ -3,6 +3,8 @@ package com.naveedshahzad.automation;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
@@ -22,6 +24,22 @@ public class JSBridge {
     public void openUrl(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         context.startActivity(intent);
+    }
+
+    // Turn on/off airplane mode
+    @JavascriptInterface
+    public void setAirplaneMode(boolean isEnabled) {
+        // Set the airplane mode on/off
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+        } else {
+            Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+        }
+
+        // Broadcast an intent to inform other applications of the airplane mode change
+        Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        intent.putExtra("state", isEnabled);
+        context.sendBroadcast(intent);
     }
 }
 
