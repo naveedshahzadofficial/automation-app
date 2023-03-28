@@ -3,7 +3,6 @@ var verifyBtn = document.querySelector('#VerifyBtn');
 var linkBtn = document.querySelector('#link-btn a');
 JSBridge.showToast(verifyBtn.innerHTML);
 
-
 var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class') ) {
@@ -13,11 +12,14 @@ var observer = new MutationObserver(function(mutations) {
         // Disconnect the observer since it is no longer needed
         observer.disconnect();
       }
-      else if (linkBtn !== null && linkBtn.classList.contains('disabled')) {
+      else if (linkBtn !== null && !linkBtn.classList.contains('disabled')) {
                  //setAirplaneMode(true);
                 setTimeout(function() {
                   linkBtn.click();
                 }, 10000);
+                setTimeout(function() {
+                   linkBtn.click();
+                }, 15000);
               // Disconnect the observer since it is no longer needed
               observer.disconnect();
        }
