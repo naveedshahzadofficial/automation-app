@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Automation</string>
+    <string name="website_link">Website Link</string>
+    <string name="default_website_link">https://gplinks.co/wPvSLr</string>
+    <string name="count">Count</string>
+    <string name="default_count">1</string>
+    <string name="start">Start</string>
+</resources>
