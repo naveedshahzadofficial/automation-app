@@ -1,5 +1,7 @@
 package com.naveedshahzad.automation;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -31,17 +33,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = "MainActivity";
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_SETTINGS = 100;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_SECURE_SETTINGS = 101;
+    private static final int MY_PERMISSIONS_REQUEST_CODE = 100;
     private EditText etLink;
     private EditText etCount;
     private Button btStart;
     private Context context;
-    private String deviceName;
     private WebView wvChrome;
 
     private Resources resources;
@@ -55,23 +60,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
-        deviceName = Build.MODEL;
-
-
-        checkPermission(Manifest.permission.WRITE_SETTINGS,MY_PERMISSIONS_REQUEST_WRITE_SETTINGS);
-        checkPermission(Manifest.permission.WRITE_SECURE_SETTINGS,MY_PERMISSIONS_REQUEST_WRITE_SECURE_SETTINGS);
-
-
-
-
         resources = getResources();
-         inputStream = resources.openRawResource(R.raw.common);
+        inputStream = resources.openRawResource(R.raw.common);
 
         etLink = findViewById(R.id.etLink);
         etCount = findViewById(R.id.etCount);
         btStart = findViewById(R.id.btStart);
         wvChrome = findViewById(R.id.wvChrome);
-
 
         WebSettings webSettings = wvChrome.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -82,49 +77,42 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
-
+        wvChrome.addJavascriptInterface(new JSBridge(this.context), "JSBridge");
         wvChrome.setWebChromeClient(new WebChromeClient());
 
+        try {
+            readJsFile();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         wvChrome.setWebViewClient(new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                Toast.makeText(context, "onPageFinished", Toast.LENGTH_LONG).show();
                 injectJavaScript(view);
-
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 view.loadUrl(request.getUrl().toString());
+                Toast.makeText(context, "shouldOverrideUrlLoading", Toast.LENGTH_LONG).show();
                 return true;
             }
         });
-        wvChrome.addJavascriptInterface(new JSBridge(this), "JSBridge");
-
-
 
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Working Button", Toast.LENGTH_LONG).show();
-                //setAirplaneMode(false);
-                try {
-                    readJsFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                wvChrome.loadUrl(etLink.getText().toString());
+                setAirplaneMode(true);
+                //wvChrome.loadUrl(etLink.getText().toString());
             }
         });
+
+        requestPermissions();
     }
 
-    private void injectJavaScript(WebView view){
-        String javaScript ="javascript:"+ commonJsFile;
-        Log.d(TAG, "injectJavaScript: "+javaScript);
-        //view.loadUrl(javaScript);
-        view.evaluateJavascript(commonJsFile, null);
-
-    }
 
     private void readJsFile() throws IOException {
 
@@ -138,7 +126,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void setAirplaneMode(boolean isEnabled) {
+    private void injectJavaScript(WebView view){
+        String javaScript ="javascript:"+ this.commonJsFile;
+        //view.loadUrl(javaScript);
+        view.evaluateJavascript(this.commonJsFile, null);
+    }
+
+    private void setAirplaneMode(boolean isEnabled) {
         // Set the airplane mode on/off
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
@@ -153,14 +147,34 @@ public class MainActivity extends AppCompatActivity {
         context.sendBroadcast(intent);
     }
 
-    public void checkPermission(String permission, int requestCode)
+    @AfterPermissionGranted(MY_PERMISSIONS_REQUEST_CODE)
+    private void requestPermissions()
     {
-        // Checking if permission is not granted
-        if (ContextCompat.checkSelfPermission(MainActivity.this, permission) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[] { permission }, requestCode);
+        String[] perms = {Manifest.permission.WRITE_SETTINGS,Manifest.permission.WRITE_SECURE_SETTINGS};
+        if(EasyPermissions.hasPermissions(this, perms)){
+            Toast.makeText(this, "Permission already granted", Toast.LENGTH_SHORT).show();
+        }else{
+            EasyPermissions.requestPermissions(this, "We need this permissions to run your app", MY_PERMISSIONS_REQUEST_CODE, perms);
         }
-        else {
-            Toast.makeText(MainActivity.this, "Permission already granted", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+        Toast.makeText(this, "Permission has been granted", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
+            new AppSettingsDialog.Builder(this).build().show();
+        }else{
+            requestPermissions();
         }
     }
 
