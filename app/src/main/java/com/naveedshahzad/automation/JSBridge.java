@@ -1,5 +1,7 @@
 package com.naveedshahzad.automation;
 
+import static com.naveedshahzad.automation.MainActivity.MY_BROADCAST_PACKAGE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -35,11 +37,18 @@ public class JSBridge {
         } else {
             Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
         }
-
         // Broadcast an intent to inform other applications of the airplane mode change
-        Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        Intent intent = new Intent();
+        intent.setAction(MY_BROADCAST_PACKAGE);
+        intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.putExtra("state", isEnabled);
         context.sendBroadcast(intent);
+    }
+
+    @JavascriptInterface
+    public void clearHistory(){
+        //((MainActivity) context).clearBrowsingData();
+         showToast("History clear successfully.");
     }
 }
 

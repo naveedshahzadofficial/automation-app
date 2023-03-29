@@ -8,10 +8,13 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private static final String TAG = "MainActivity";
     private static final int MY_PERMISSIONS_REQUEST_CODE = 100;
+    static final String MY_BROADCAST_PACKAGE = "com.naveedshahzad.MyBroadcastMessage";
     private EditText etLink;
     private EditText etCount;
     private Button btStart;
@@ -53,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private InputStream inputStream;
 
     private String commonJsFile;
+
+    AirplaneModeChangeReceiver airplaneModeChangeReceiver = new AirplaneModeChangeReceiver();
+
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -86,14 +93,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         } catch (IOException e) {
             e.printStackTrace();
         }
+        wvChrome.evaluateJavascript(this.commonJsFile, null);
         wvChrome.setWebViewClient(new WebViewClient(){
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 Toast.makeText(context, "onPageFinished", Toast.LENGTH_LONG).show();
                 injectJavaScript(view);
             }
-
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 view.loadUrl(request.getUrl().toString());
@@ -105,11 +113,18 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setAirplaneMode(true);
-                //wvChrome.loadUrl(etLink.getText().toString());
+                clearBrowsingData();
+                wvChrome.loadUrl(etLink.getText().toString());
             }
         });
+        if(Settings.System.canWrite(this)){
 
+        }else{
+            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+            intent.setData(Uri.parse("package:"+this.getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
         requestPermissions();
     }
 
@@ -132,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         view.evaluateJavascript(this.commonJsFile, null);
     }
 
-    private void setAirplaneMode(boolean isEnabled) {
+    protected void setAirplaneMode(boolean isEnabled) {
         // Set the airplane mode on/off
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
@@ -142,7 +157,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
         // Broadcast an intent to inform other applications of the airplane mode change
-        Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        Intent intent = new Intent();
+        intent.setAction(MY_BROADCAST_PACKAGE);
+        intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.putExtra("state", isEnabled);
         context.sendBroadcast(intent);
     }
@@ -150,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     @AfterPermissionGranted(MY_PERMISSIONS_REQUEST_CODE)
     private void requestPermissions()
     {
-        String[] perms = {Manifest.permission.WRITE_SETTINGS,Manifest.permission.WRITE_SECURE_SETTINGS};
+        String[] perms = {Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.ACCESS_WIFI_STATE};
         if(EasyPermissions.hasPermissions(this, perms)){
             Toast.makeText(this, "Permission already granted", Toast.LENGTH_SHORT).show();
         }else{
@@ -178,4 +195,22 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter filter = new IntentFilter(MY_BROADCAST_PACKAGE);
+        registerReceiver(airplaneModeChangeReceiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(airplaneModeChangeReceiver);
+    }
+
+    public void clearBrowsingData(){
+        wvChrome.clearCache(true);
+        wvChrome.clearFormData();
+        wvChrome.clearHistory();
+    }
 }

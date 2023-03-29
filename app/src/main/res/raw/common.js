@@ -1,7 +1,6 @@
 (function(){
 var verifyBtn = document.querySelector('#VerifyBtn');
 var linkBtn = document.querySelector('#link-btn a');
-JSBridge.showToast(verifyBtn.innerHTML);
 
 var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
@@ -13,13 +12,16 @@ var observer = new MutationObserver(function(mutations) {
         observer.disconnect();
       }
       else if (linkBtn !== null && !linkBtn.classList.contains('disabled')) {
-                 //setAirplaneMode(true);
-                setTimeout(function() {
-                  linkBtn.click();
-                }, 10000);
-                setTimeout(function() {
-                   linkBtn.click();
-                }, 15000);
+
+                JSBridge.showToast("clear history in-progress...");
+                JSBridge.clearHistory(true);
+                JSBridge.showToast("AirplaneMode is on...");
+                JSBridge.setAirplaneMode(true);
+                JSBridge.showToast("AirplaneMode is off...");
+                JSBridge.setAirplaneMode(false);
+                linkBtn.click();
+
+               //linkBtn.click();
               // Disconnect the observer since it is no longer needed
               observer.disconnect();
        }
@@ -29,6 +31,7 @@ var observer = new MutationObserver(function(mutations) {
 
 
 if(verifyBtn !== null){
+JSBridge.showToast(verifyBtn.innerHTML);
 observer.observe(verifyBtn, { attributes: true });
 verifyBtn.addEventListener("click", function() {
 setTimeout(function() {
@@ -46,14 +49,3 @@ if(linkBtn !== null){
 }
 
 })();
-
-// Define a function to turn on/off airplane mode
-function setAirplaneMode(isEnabled) {
-  // Check if the Android device is running in a webview
-  if (typeof JSBridge !== 'undefined') {
-    // Call the Android method to turn on/off airplane mode
-    JSBridge.setAirplaneMode(isEnabled);
-  } else {
-    console.log('The function is not available outside of the Android app.');
-  }
-}
