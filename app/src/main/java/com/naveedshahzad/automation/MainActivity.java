@@ -256,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     public void setCounting(){
         counting++;
+        startWork();
     }
 
     @Override
