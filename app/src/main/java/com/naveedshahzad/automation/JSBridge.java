@@ -47,8 +47,13 @@ public class JSBridge {
 
     @JavascriptInterface
     public void clearHistory(){
-        //((MainActivity) context).clearBrowsingData();
+         //((MainActivity) context).clearBrowsingData();
          showToast("History clear successfully.");
+    }
+
+    @JavascriptInterface
+    public void setCounting(){
+        ((MainActivity) context).setCounting();
     }
 }
 

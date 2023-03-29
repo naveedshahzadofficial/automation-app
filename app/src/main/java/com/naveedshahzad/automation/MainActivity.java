@@ -20,6 +20,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
@@ -30,6 +33,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -57,9 +61,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private InputStream inputStream;
 
     private String commonJsFile;
+    private boolean inProgress = false;
+    private int counting = 1;
+
+    private LinearLayout llForm;
+
 
     AirplaneModeChangeReceiver airplaneModeChangeReceiver = new AirplaneModeChangeReceiver();
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -74,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         etCount = findViewById(R.id.etCount);
         btStart = findViewById(R.id.btStart);
         wvChrome = findViewById(R.id.wvChrome);
+        llForm = findViewById(R.id.llForm);
 
         WebSettings webSettings = wvChrome.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -93,7 +109,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         wvChrome.evaluateJavascript(this.commonJsFile, null);
+
         wvChrome.setWebViewClient(new WebViewClient(){
 
             @Override
@@ -113,10 +131,19 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clearBrowsingData();
-                wvChrome.loadUrl(etLink.getText().toString());
+                if (inProgress) {
+                    // Stop the work if it's in progress
+                    stopWork();
+                    inProgress = false;
+                } else {
+                    llForm.setVisibility(View.GONE);
+                    // Start the work if it's not in progress
+                    startWork();
+                    inProgress = true;
+                }
             }
         });
+
         if(Settings.System.canWrite(this)){
 
         }else{
@@ -212,5 +239,37 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.clearCache(true);
         wvChrome.clearFormData();
         wvChrome.clearHistory();
+    }
+
+    private void startWork() {
+        int total = Integer.parseInt(etCount.getText().toString());
+        if(total >= counting) {
+            clearBrowsingData();
+            btStart.setText("In Process (" + counting + ")");
+            wvChrome.loadUrl(etLink.getText().toString());
+        }
+    }
+
+    private void stopWork() {
+        btStart.setText("START");
+    }
+
+    public void setCounting(){
+        counting++;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item:
+                if (llForm.getVisibility() == View.GONE) {
+                    llForm.setVisibility(View.VISIBLE);
+                } else {
+                    llForm.setVisibility(View.GONE);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
