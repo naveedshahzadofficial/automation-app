@@ -32,6 +32,7 @@ import android.view.View;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -125,21 +126,25 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                Toast.makeText(context, "onPageFinished", Toast.LENGTH_LONG).show();
                 injectJavaScript(view);
             }
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 view.loadUrl(request.getUrl().toString());
-                Toast.makeText(context, "shouldOverrideUrlLoading", Toast.LENGTH_LONG).show();
                 return true;
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                Log.e("WebView", "Error: " + error.getDescription());
+                showToast(error.getDescription().toString());
             }
         });
 
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setAirplaneMode(true);
                 if (inProgress) {
                     // Stop the work if it's in progress
                     stopWork();
@@ -179,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             try {
                 Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+                showToast(isEnabled?"AirPlane mode is on":"AirPlane mode is off");
             }catch (Exception e){
                 Log.e(TAG, e.getMessage());
             }
@@ -237,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void clearBrowsingData(){
+        showToast("Clear History");
         wvChrome.clearCache(true);
         wvChrome.clearFormData();
         wvChrome.clearHistory();
@@ -245,13 +252,18 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private void startWork() {
         int total = Integer.parseInt(etCount.getText().toString());
         if(total >= counting) {
-            clearBrowsingData();
+            if(counting>1){
+                clearBrowsingData();
+                setAirplaneMode(true);
+                setAirplaneMode(false);
+            }
             btStart.setText("In Process (" + counting + ")");
             wvChrome.loadUrl(etLink.getText().toString());
         }
     }
 
     private void stopWork() {
+        wvChrome.stopLoading();
         btStart.setText("START");
     }
 
@@ -335,11 +347,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             os.flush();
         } catch (RuntimeException | IOException e) {
             Log.e(TAG, "Exception :( " + e.getMessage());
-            toast(e.getMessage());
+            showToast(e.getMessage());
         }
     }
 
-    private void toast(String message){
+    private void showToast(String message){
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 

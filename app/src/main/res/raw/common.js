@@ -2,8 +2,7 @@
 var verifyBtn = document.querySelector('#VerifyBtn');
 var linkBtn = document.querySelector('#link-btn a');
 
-
-
+var isCompleted = true;
 var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class') ) {
@@ -11,8 +10,12 @@ var observer = new MutationObserver(function(mutations) {
             verifyBtn.click();
         observer.disconnect();
       }
-      else if (linkBtn !== null && !linkBtn.classList.contains('disabled')) {
+      else if (linkBtn !== null && mutation.attributeName === 'class' && !linkBtn.classList.contains('disabled')) {
               linkBtn.click();
+              if(isCompleted){
+                 JSBridge.setCompleted();
+                 isCompleted = false;
+              }
               observer.disconnect();
        }
     }
@@ -36,14 +39,6 @@ setTimeout(function() {
 
 if(linkBtn !== null){
  observer.observe(linkBtn, { attributes: true });
- linkBtn.addEventListener("click", function() {
-    JSBridge.clearHistory();
-    JSBridge.showToast("AirplaneMode is on...");
-    JSBridge.setAirplaneMode(true);
-    JSBridge.showToast("AirplaneMode is off...");
-    JSBridge.setAirplaneMode(false);
-    JSBridge.setCounting();
- });
 }
 
 })();
