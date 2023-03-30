@@ -1,5 +1,7 @@
 package com.naveedshahzad.automation;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,8 +10,10 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -37,6 +41,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -65,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private int counting = 1;
 
     private LinearLayout llForm;
+
+    ActivityResultLauncher<String> requestPermissionLauncher;
 
 
     AirplaneModeChangeReceiver airplaneModeChangeReceiver = new AirplaneModeChangeReceiver();
@@ -143,15 +150,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 }
             }
         });
-
-        if(Settings.System.canWrite(this)){
-
-        }else{
-            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-            intent.setData(Uri.parse("package:"+this.getPackageName()));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
         requestPermissions();
     }
 
@@ -182,11 +180,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
         }
 
-
         // Broadcast an intent to inform other applications of the airplane mode change
-        Intent intent = new Intent();
-        intent.setAction(MY_BROADCAST_PACKAGE);
-        intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        //intent.setAction(MY_BROADCAST_PACKAGE);
+        //intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.putExtra("state", isEnabled);
         context.sendBroadcast(intent);
     }
@@ -194,10 +191,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     @AfterPermissionGranted(MY_PERMISSIONS_REQUEST_CODE)
     private void requestPermissions()
     {
-        String[] perms = {Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.ACCESS_WIFI_STATE};
-        if(EasyPermissions.hasPermissions(this, perms)){
-            Toast.makeText(this, "Permission already granted", Toast.LENGTH_SHORT).show();
-        }else{
+        writeSettingPermission();
+        String[] perms = {Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.ACCESS_WIFI_STATE,Manifest.permission.RECEIVE_BOOT_COMPLETED, Manifest.permission.WAKE_LOCK};
+        if(!EasyPermissions.hasPermissions(this, perms)){
             EasyPermissions.requestPermissions(this, "We need this permissions to run your app", MY_PERMISSIONS_REQUEST_CODE, perms);
         }
     }
@@ -225,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     @Override
     protected void onStart() {
         super.onStart();
-        IntentFilter filter = new IntentFilter(MY_BROADCAST_PACKAGE);
+        IntentFilter filter = new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         registerReceiver(airplaneModeChangeReceiver, filter);
     }
 
@@ -273,4 +269,73 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 return super.onOptionsItemSelected(item);
         }
     }
-}
+
+    private void writeSettingPermission(){
+        if(!Settings.System.canWrite(this)){
+        // Define an ActivityResultContract for the intent you want to start
+        ActivityResultContract<String, Boolean> requestPermissionContract =
+                new ActivityResultContract<String, Boolean>() {
+                    @NonNull
+                    @Override
+                    public Intent createIntent(@NonNull Context context, String input) {
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                        intent.setData(Uri.parse("package:" + context.getPackageName()));
+                        return intent;
+                    }
+
+                    @Override
+                    public Boolean parseResult(int resultCode, @Nullable Intent intent) {
+                        return Settings.System.canWrite(context);
+                    }
+                };
+
+        // Create an ActivityResultLauncher for the requestPermissionContract
+        requestPermissionLauncher =
+                registerForActivityResult(requestPermissionContract, isGranted -> {
+                    if (isGranted) {
+                        Toast.makeText(context, "Permission is granted.", Toast.LENGTH_LONG).show();
+                        securePermission();
+                    } else {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setMessage("The app needs the write settings permission to function properly. Would you like to grant the permission now?")
+                                .setPositiveButton("Grant", (dialog, which) -> {
+                                    // Launch the permission request again
+                                    requestPermissionLauncher.launch("");
+                                })
+                                .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        android.os.Process.killProcess(android.os.Process.myPid());
+                                        System.exit(1);
+                                    }
+                                })
+                                .create()
+                                .show();
+                    }
+                });
+
+        // Start the activity using the requestPermissionLauncher
+
+
+            requestPermissionLauncher.launch("");
+        }
+    }
+
+    private void securePermission(){
+        try {
+            Process p = Runtime.getRuntime().exec("ls");
+            DataOutputStream os = new DataOutputStream(p.getOutputStream());
+            os.writeBytes("pm grant " + getApplicationContext().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS \n");
+            os.writeBytes("exit\n");
+            os.flush();
+        } catch (RuntimeException | IOException e) {
+            Log.e(TAG, "Exception :( " + e.getMessage());
+            toast(e.getMessage());
+        }
+    }
+
+    private void toast(String message){
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
+   }
