@@ -1,7 +1,5 @@
 package com.naveedshahzad.automation;
 
-import static com.naveedshahzad.automation.MainActivity.MY_BROADCAST_PACKAGE;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,6 +8,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class JSBridge {
     private Context context;
@@ -32,12 +32,12 @@ public class JSBridge {
     @JavascriptInterface
     public void setCompleted(){
         showToast("Your task is completed.");
-        setCounting();
-    }
-
-    @JavascriptInterface
-    public void setCounting(){
-        ((MainActivity) context).setCounting();
+        //((MainActivity) context).startWork();
+        Intent intent = new Intent();
+        intent.setAction(Constants.MY_BROADCAST_TASKS);
+        intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        intent.putExtra("count", 1);
+        context.sendBroadcast(intent);
     }
 }
 

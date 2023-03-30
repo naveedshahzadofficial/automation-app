@@ -5,22 +5,16 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -29,10 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.PermissionRequest;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -72,12 +63,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private int counting = 1;
 
     private LinearLayout llForm;
+    private String saveWebsiteLink;
 
     ActivityResultLauncher<String> requestPermissionLauncher;
 
 
+    SharedPreferencesManager spm;
     AirplaneModeChangeReceiver airplaneModeChangeReceiver = new AirplaneModeChangeReceiver();
 
+    TaskBroadcastReceiver tbr = new TaskBroadcastReceiver();
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -99,6 +93,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         btStart = findViewById(R.id.btStart);
         wvChrome = findViewById(R.id.wvChrome);
         llForm = findViewById(R.id.llForm);
+        spm = new SharedPreferencesManager(this);
+
+        /* Shared Preference Manage*/
+        saveWebsiteLink = spm.getString(Constants.WEBSITE_URL, "");
+        if(saveWebsiteLink.equals("")){
+            spm.saveString(Constants.WEBSITE_URL, etLink.getText().toString());
+        }else{
+            etLink.setText(saveWebsiteLink);
+        }
+
 
         WebSettings webSettings = wvChrome.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -133,18 +137,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 view.loadUrl(request.getUrl().toString());
                 return true;
             }
-
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                super.onReceivedError(view, request, error);
-                Log.e("WebView", "Error: " + error.getDescription());
-                showToast(error.getDescription().toString());
-            }
         });
 
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(!saveWebsiteLink.equals(etLink.getText().toString())){
+                    spm.saveString(Constants.WEBSITE_URL, etLink.getText().toString());
+                    saveWebsiteLink = etLink.getText().toString();
+                }
+
                 if (inProgress) {
                     // Stop the work if it's in progress
                     stopWork();
@@ -234,12 +237,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         super.onStart();
         IntentFilter filter = new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         registerReceiver(airplaneModeChangeReceiver, filter);
+
+        IntentFilter filter2 = new IntentFilter(Constants.MY_BROADCAST_TASKS);
+        registerReceiver(tbr, filter2);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unregisterReceiver(airplaneModeChangeReceiver);
+        unregisterReceiver(tbr);
     }
 
     public void clearBrowsingData(){
@@ -249,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.clearHistory();
     }
 
-    private void startWork() {
+    public void startWork() {
         int total = Integer.parseInt(etCount.getText().toString());
         if(total >= counting) {
             if(counting>1){
@@ -267,9 +274,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         btStart.setText("START");
     }
 
-    public void setCounting(){
-        counting++;
-        startWork();
+    public void setCounting()
+    {
+        this.counting++;
     }
 
     @Override
@@ -353,6 +360,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private void showToast(String message){
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
+    public WebView getWebView(){
+        return this.wvChrome;
     }
 
    }
