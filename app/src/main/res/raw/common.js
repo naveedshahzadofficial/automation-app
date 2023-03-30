@@ -13,8 +13,8 @@ var observer = new MutationObserver(function(mutations) {
       else if (linkBtn !== null && mutation.attributeName === 'class' && !linkBtn.classList.contains('disabled')) {
               linkBtn.click();
               if(isCompleted){
-                 JSBridge.setCompleted();
                  isCompleted = false;
+                 JSBridge.setCompleted();
               }
               observer.disconnect();
        }
