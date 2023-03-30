@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setAirplaneMode(true);
                 if (inProgress) {
                     // Stop the work if it's in progress
                     stopWork();
@@ -175,17 +177,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     protected void setAirplaneMode(boolean isEnabled) {
         // Set the airplane mode on/off
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+            try {
+                Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+            }catch (Exception e){
+                Log.e(TAG, e.getMessage());
+            }
         } else {
             Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+            // Broadcast an intent to inform other applications of the airplane mode change
+            Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+            intent.putExtra("state", isEnabled);
+            sendBroadcast(intent);
         }
-
-        // Broadcast an intent to inform other applications of the airplane mode change
-        Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         //intent.setAction(MY_BROADCAST_PACKAGE);
         //intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-        intent.putExtra("state", isEnabled);
-        context.sendBroadcast(intent);
     }
 
     @AfterPermissionGranted(MY_PERMISSIONS_REQUEST_CODE)
@@ -323,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private void securePermission(){
         try {
-            Process p = Runtime.getRuntime().exec("ls");
+            Process p = Runtime.getRuntime().exec("system/bin/sh");
             DataOutputStream os = new DataOutputStream(p.getOutputStream());
             os.writeBytes("pm grant " + getApplicationContext().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS \n");
             os.writeBytes("exit\n");
