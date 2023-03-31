@@ -12,6 +12,7 @@ function callback(mutations, obs) {
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               linkBtn.click();
+              linkBtn.click();
               if(!linkBtn.classList.contains('visited')){
                  linkBtn.classList.add('visited');
                  JSBridge.setCompleted();
@@ -30,9 +31,13 @@ observer.observe(verifyBtn, { attributes: true });
 verifyBtn.addEventListener("click", function() {
 setTimeout(function() {
    var nextBtn = document.querySelector('#NextBtn');
-   var href = nextBtn.getAttribute('href');
-   JSBridge.showToast(href);
-   nextBtn.click();
+   if(nextBtn === null){
+       verifyBtn.click();
+   }else{
+       var href = nextBtn.getAttribute('href');
+       JSBridge.showToast(href);
+       nextBtn.click();
+   }
 }, 5000);
 });
 }
