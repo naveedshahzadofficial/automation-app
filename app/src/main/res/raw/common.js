@@ -10,7 +10,7 @@ function callback(mutations, obs) {
       if (verifyBtn !== null && verifyBtn.style.display !== 'none') {
             verifyBtn.click();
       }
-      else if (linkBtn !== null && mutation.attributeName === 'class' && ['btn','btn-primary','rounded','get-link','xclude-popad'].some(r=> linkBtn.classList.includes(r)) && linkBtn.innerHTML=="Get Link") {
+      else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               linkBtn.click();
               if(!linkBtn.classList.contains('visited')){
                  linkBtn.classList.add('visited');
