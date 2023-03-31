@@ -14,9 +14,7 @@ function callback(mutations, obs) {
               linkBtn.click();
               if(!linkBtn.classList.contains('visited')){
                  linkBtn.classList.add('visited');
-                 setTimeout(function() {
                  JSBridge.setCompleted();
-                 }, 5000);
               }
        }
     }
