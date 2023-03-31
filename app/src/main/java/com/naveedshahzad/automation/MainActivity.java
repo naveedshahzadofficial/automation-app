@@ -259,11 +259,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public void startWork() {
         int total = Integer.parseInt(etCount.getText().toString());
         if(total >= counting) {
-            if(counting>1){
-                clearBrowsingData();
-                setAirplaneMode(true);
-                setAirplaneMode(false);
-            }
             btStart.setText("In Process (" + counting + ")");
             wvChrome.loadUrl(etLink.getText().toString());
         }
@@ -272,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private void stopWork() {
         wvChrome.stopLoading();
         btStart.setText("START");
+        counting=0;
     }
 
     public void setCounting()

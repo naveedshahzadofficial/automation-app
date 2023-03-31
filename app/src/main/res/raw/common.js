@@ -3,12 +3,13 @@ var verifyBtn = document.querySelector('#VerifyBtn');
 var linkBtn = document.querySelector('#link-btn a');
 
 var isCompleted = true;
-var observer = new MutationObserver(function(mutations) {
+
+function callback(mutations, obs) {
+  obs.disconnect();
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class') ) {
       if (verifyBtn !== null && verifyBtn.style.display !== 'none') {
             verifyBtn.click();
-        observer.disconnect();
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && !linkBtn.classList.contains('disabled')) {
               linkBtn.click();
@@ -16,11 +17,12 @@ var observer = new MutationObserver(function(mutations) {
                  isCompleted = false;
                  JSBridge.setCompleted();
               }
-              observer.disconnect();
        }
     }
   });
-});
+}
+
+var observer = new MutationObserver(callback);
 
 
 if(verifyBtn !== null){
@@ -32,7 +34,6 @@ setTimeout(function() {
    var href = nextBtn.getAttribute('href');
    JSBridge.showToast(href);
    nextBtn.click();
-   //window.location = 'https://www.example.com';
 }, 5000);
 });
 }

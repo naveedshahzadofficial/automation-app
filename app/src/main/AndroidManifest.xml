@@ -40,14 +40,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <receiver
-            android:name=".AirplaneModeChangeReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.naveedshahzad.MyBroadcastMessage" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>
