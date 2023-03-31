@@ -16,13 +16,15 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
         } catch (InterruptedException e) {
             Log.e("Exception: ", e.getMessage());
         }
-        activity.setAirplaneMode(true);
+        activity.showToast("AirPlane mode is on");
+        //activity.setAirplaneMode(true);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             Log.e("Exception: ", e.getMessage());
         }
-        activity.setAirplaneMode(false);
+        activity.showToast("AirPlane mode is off");
+        //activity.setAirplaneMode(false);
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
