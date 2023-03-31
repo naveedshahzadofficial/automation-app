@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private void stopWork() {
         wvChrome.stopLoading();
         btStart.setText("START");
-        counting=0;
+        counting=1;
     }
 
     public void setCounting()
