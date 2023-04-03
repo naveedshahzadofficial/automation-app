@@ -12,7 +12,7 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
         MainActivity activity = ((MainActivity) context);
         activity.clearBrowsingData();
         try {
-            Thread.sleep(10000);
+            Thread.sleep(15000);
         } catch (InterruptedException e) {
             Log.e("Exception: ", e.getMessage());
         }
@@ -25,11 +25,6 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
         }
         activity.showToast("AirPlane mode is off");
         //activity.setAirplaneMode(false);
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            Log.e("Exception: ", e.getMessage());
-        }
         activity.setCounting();
         activity.startWork();
     }

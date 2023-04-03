@@ -11,11 +11,13 @@ function callback(mutations, obs) {
             verifyBtn.click();
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
-              linkBtn.click();
-              linkBtn.click();
               if(!linkBtn.classList.contains('visited')){
-                 linkBtn.classList.add('visited');
-                 JSBridge.setCompleted();
+                  setTimeout(function() {
+                  linkBtn.click();
+                  setTimeout(function() {
+                                    linkBtn.click();
+                                    }, 3000);
+                  }, 5000);
               }
        }
     }
@@ -44,6 +46,12 @@ setTimeout(function() {
 
 if(linkBtn !== null){
  observer.observe(linkBtn, { attributes: true });
+     linkBtn.addEventListener("click", function() {
+        if(!linkBtn.classList.contains('visited')){
+                         linkBtn.classList.add('visited');
+                         JSBridge.setCompleted();
+                      }
+     });
 }
 
 })();
