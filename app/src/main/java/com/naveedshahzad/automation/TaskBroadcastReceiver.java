@@ -19,7 +19,7 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
         activity.showToast("AirPlane mode is on");
         //activity.setAirplaneMode(true);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             Log.e("Exception: ", e.getMessage());
         }

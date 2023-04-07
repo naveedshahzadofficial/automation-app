@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -143,12 +144,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
                 super.onReceivedHttpError(view, request, errorResponse);
                 showToast(""+errorResponse.getStatusCode());
-                if(errorResponse.getStatusCode()==404){
+                /*if(errorResponse.getStatusCode()==404){
                     startWork();
-                }
-
-
+                }*/
             }
+
+
         });
 
         btStart.setOnClickListener(new View.OnClickListener() {
