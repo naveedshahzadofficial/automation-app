@@ -54,15 +54,10 @@
 
 
         <ScrollView
+            android:id="@+id/svWebView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="3">
-
-            <WebView
-                android:id="@+id/wvChrome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp" />
         </ScrollView>
 
     </LinearLayout>

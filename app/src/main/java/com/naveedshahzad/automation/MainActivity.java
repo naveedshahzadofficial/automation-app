@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -33,6 +34,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private EditText etCount;
     private Button btStart;
     private Context context;
+
+    private ScrollView svWebView;
     private WebView wvChrome;
 
     private Resources resources;
@@ -81,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         return true;
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         etLink = findViewById(R.id.etLink);
         etCount = findViewById(R.id.etCount);
         btStart = findViewById(R.id.btStart);
-        wvChrome = findViewById(R.id.wvChrome);
+        svWebView = findViewById(R.id.svWebView);
         llForm = findViewById(R.id.llForm);
         spm = new SharedPreferencesManager(this);
 
@@ -105,19 +108,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             etLink.setText(saveWebsiteLink);
         }
 
-
-        WebSettings webSettings = wvChrome.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-        webSettings.setDatabaseEnabled(true);
-        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        webSettings.setSupportMultipleWindows(true);
-        webSettings.setSupportZoom(true);
-        webSettings.setBuiltInZoomControls(true);
-        webSettings.setDisplayZoomControls(false);
-        wvChrome.addJavascriptInterface(new JSBridge(this.context), "JSBridge");
-        wvChrome.setWebChromeClient(new WebChromeClient());
-
         try {
             readJsFile();
 
@@ -125,32 +115,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             e.printStackTrace();
         }
 
-        wvChrome.evaluateJavascript(this.commonJsFile, null);
 
-        wvChrome.setWebViewClient(new WebViewClient(){
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                injectJavaScript(view);
-            }
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                view.loadUrl(request.getUrl().toString());
-                return true;
-            }
-
-            @Override
-            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-                super.onReceivedHttpError(view, request, errorResponse);
-                showToast(""+errorResponse.getStatusCode());
-                /*if(errorResponse.getStatusCode()==404){
-                    startWork();
-                }*/
-            }
-
-
-        });
 
         btStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -263,17 +228,21 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void clearBrowsingData(){
-        showToast("Clear History");
+        wvChrome.clearHistory();
         wvChrome.clearCache(true);
         wvChrome.clearFormData();
-        wvChrome.clearHistory();
+        wvChrome.destroy();
+
     }
 
     public void startWork() {
         int total = Integer.parseInt(etCount.getText().toString());
         if(total >= counting) {
             btStart.setText("In Process (" + counting + ")");
+            this.wvChromeInitialize();
             wvChrome.loadUrl(etLink.getText().toString());
+        }else{
+            showToast("Your Count has been completed.");
         }
     }
 
@@ -281,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.stopLoading();
         btStart.setText("START");
         counting=1;
+        wvChrome.destroy();
     }
 
     public void setCounting()
@@ -373,6 +343,53 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     public WebView getWebView(){
         return this.wvChrome;
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void wvChromeInitialize(){
+        wvChrome = new WebView(context);
+        wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        svWebView.addView(wvChrome);
+
+        WebSettings webSettings = wvChrome.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setDatabaseEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setSupportMultipleWindows(true);
+        webSettings.setSupportZoom(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
+        wvChrome.addJavascriptInterface(new JSBridge(this.context), "JSBridge");
+        wvChrome.setWebChromeClient(new WebChromeClient());
+
+        wvChrome.evaluateJavascript(this.commonJsFile, null);
+
+        wvChrome.setWebViewClient(new WebViewClient(){
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                injectJavaScript(view);
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                view.loadUrl(request.getUrl().toString());
+                return true;
+            }
+
+            @Override
+            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+                super.onReceivedHttpError(view, request, errorResponse);
+                showToast(""+errorResponse.getStatusCode());
+                /*if(errorResponse.getStatusCode()==404){
+                    startWork();
+                }*/
+            }
+
+
+        });
+
     }
 
    }

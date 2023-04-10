@@ -31,7 +31,7 @@ public class JSBridge {
 
     @JavascriptInterface
     public void setCompleted(){
-        showToast("Your task is completed.");
+        showToast("Your task is processing.");
         //((MainActivity) context).startWork();
         Intent intent = new Intent();
         intent.setAction(Constants.MY_BROADCAST_TASKS);
