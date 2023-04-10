@@ -20,7 +20,7 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
         MainActivity activity = ((MainActivity) context);
         Handler handler = new Handler(Looper.getMainLooper());
 
-
+        SystemClock.sleep(3000);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         activity.clearBrowsingData();
         executor.execute(new Runnable() {

@@ -169,6 +169,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             try {
                 Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+
+                Intent intent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("state", true);
+                sendBroadcast(intent);
+
                 //showToast(isEnabled?"AirPlane mode is on":"AirPlane mode is off");
             }catch (Exception e){
                 Log.e(TAG, e.getMessage());
@@ -177,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Settings.System.putInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
             // Broadcast an intent to inform other applications of the airplane mode change
             Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("state", isEnabled);
             sendBroadcast(intent);
         }
