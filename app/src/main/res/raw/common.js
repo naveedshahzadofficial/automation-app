@@ -5,15 +5,21 @@ var nextBtn = document.querySelector('#NextBtn');
 
 
 function callback(mutations, obs) {
-  //obs.disconnect();
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes') {
-
-      if (verifyBtn !== null && mutation.attributeName === 'style' && verifyBtn.style.display !== 'none') {
+      if (mutation.target.id === 'VerifyBtn' && mutation.target.hidden === false) {
             verifyBtn.click();
+            setTimeout(function() {
+            if(nextBtn.offsetParent === null){
+                         verifyBtn.click();
+            }
+            }, 5000);
       }
-      if (nextBtn !== null && mutation.attributeName === 'style' && nextBtn.style.display !== 'none') {
+      else if (mutation.target.id ==='NextBtn' && mutation.target.hidden === false) {
             nextBtn.click();
+            setTimeout(function() {
+                              linkBtn.click();
+                          }, 5000);
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               setTimeout(function() {
@@ -24,16 +30,27 @@ function callback(mutations, obs) {
   });
 }
 
-var observer = new MutationObserver(callback);
 
 
 if(verifyBtn !== null){
+
 JSBridge.showToast(verifyBtn.innerHTML);
-observer.observe(verifyBtn, { attributes: true });
+
+var verifyBtnObserver = new MutationObserver(callback);
+verifyBtnObserver.observe(verifyBtn, { attributes: true });
+var nextBtnObserver = new MutationObserver(callback);
+nextBtnObserver.observe(nextBtn, { attributes: true });
+
+document.getElementById('myTimerDiv').style.display = 'none';
+document.getElementById('myNextInst').style.display = 'block';
+document.getElementById('VerifyBtn').style.display = 'block';
+
 }
 
 if(linkBtn !== null){
- observer.observe(linkBtn, { attributes: true });
+ var linkBtnObserver = new MutationObserver(callback);
+ linkBtnObserver.observe(linkBtn, { attributes: true });
+
      linkBtn.addEventListener("click", function() {
         var JSBridgeVisited = document.querySelector('#JSBridgeVisited');
         if(JSBridgeVisited==undefined){
@@ -44,6 +61,14 @@ if(linkBtn !== null){
             var get_link = document.querySelector('.get-link');
             get_link.click();
             JSBridge.setCompleted();
+            var cookieNames = document.cookie.split(';').map(function(cookie) {
+              return cookie.split('=')[0].trim();
+            });
+            // Loop through the cookie names and expire each one
+            cookieNames.forEach(function(cookieName) {
+              document.cookie = cookieName + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            });
+
         }
      });
 }

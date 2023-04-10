@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -78,6 +79,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     AirplaneModeChangeReceiver airplaneModeChangeReceiver = new AirplaneModeChangeReceiver();
 
     TaskBroadcastReceiver tbr = new TaskBroadcastReceiver();
+
+    CookieManager cookieManager = CookieManager.getInstance();
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -165,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             try {
                 Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
-                showToast(isEnabled?"AirPlane mode is on":"AirPlane mode is off");
+                //showToast(isEnabled?"AirPlane mode is on":"AirPlane mode is off");
             }catch (Exception e){
                 Log.e(TAG, e.getMessage());
             }
@@ -232,7 +236,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.clearCache(true);
         wvChrome.clearFormData();
         wvChrome.destroy();
-
+        svWebView.removeView(wvChrome);
+        wvChrome = null;
     }
 
     public void startWork() {
@@ -250,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.stopLoading();
         btStart.setText("START");
         counting=1;
-        wvChrome.destroy();
+        this.clearBrowsingData();
     }
 
     public void setCounting()
@@ -381,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             @Override
             public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
                 super.onReceivedHttpError(view, request, errorResponse);
-                showToast(""+errorResponse.getStatusCode());
+                //showToast(""+errorResponse.getStatusCode());
                 /*if(errorResponse.getStatusCode()==404){
                     startWork();
                 }*/
@@ -389,6 +394,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
         });
+
+        cookieManager.removeAllCookies(null);
+        cookieManager.removeSessionCookies(null);
+        cookieManager.setAcceptCookie(true);
 
     }
 
