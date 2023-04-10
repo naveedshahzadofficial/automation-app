@@ -60,9 +60,7 @@ if(linkBtn !== null){
             linkBtn.append(x);
             var get_link = document.querySelector('.get-link');
             get_link.click();
-            setTimeout(function() {
             JSBridge.setCompleted();
-                          }, 3000);
             var cookieNames = document.cookie.split(';').map(function(cookie) {
               return cookie.split('=')[0].trim();
             });
