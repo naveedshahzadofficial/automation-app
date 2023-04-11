@@ -14,6 +14,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,7 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -130,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     saveWebsiteLink = etLink.getText().toString();
                 }
 
-                if (inProgress) {
+               if (inProgress) {
                     // Stop the work if it's in progress
                     stopWork();
                     inProgress = false;
@@ -169,12 +172,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             try {
                 Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
-
-                Intent intent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("state", true);
-                sendBroadcast(intent);
-
                 //showToast(isEnabled?"AirPlane mode is on":"AirPlane mode is off");
             }catch (Exception e){
                 Log.e(TAG, e.getMessage());
@@ -187,8 +184,25 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             intent.putExtra("state", isEnabled);
             sendBroadcast(intent);
         }
-        //intent.setAction(MY_BROADCAST_PACKAGE);
-        //intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+    }
+
+    protected void setMobileData(boolean isEnabled) {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+        builder.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        builder.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+        cm.registerNetworkCallback(builder.build(), new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                showToast("network connection is available");
+            }
+
+            @Override
+            public void onLost(Network network) {
+                showToast("network connection is lost");
+            }
+        });
+
     }
 
     @AfterPermissionGranted(MY_PERMISSIONS_REQUEST_CODE)
@@ -362,9 +376,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome = new WebView(context);
         wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         svWebView.addView(wvChrome);
-        String httpAgent = System.getProperty("http.agent");
         WebSettings webSettings = wvChrome.getSettings();
-        webSettings.setUserAgentString(httpAgent);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
