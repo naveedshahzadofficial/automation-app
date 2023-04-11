@@ -362,8 +362,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome = new WebView(context);
         wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         svWebView.addView(wvChrome);
-
+        String httpAgent = System.getProperty("http.agent");
         WebSettings webSettings = wvChrome.getSettings();
+        webSettings.setUserAgentString(httpAgent);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
