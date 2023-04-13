@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             }
         });
         requestPermissions();
+        securePermission();
     }
 
 
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             try {
                 Settings.Global.putInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, isEnabled ? 1 : 0);
+                executeCommandWithoutWait(Constants.COMMAND_FLIGHT_MODE_BROADCAST+ isEnabled);
                 //showToast(isEnabled?"AirPlane mode is on":"AirPlane mode is off");
             }catch (Exception e){
                 Log.e(TAG, e.getMessage());
@@ -352,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private void securePermission(){
         try {
-            Process p = Runtime.getRuntime().exec("system/bin/sh");
+            Process p = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(p.getOutputStream());
             os.writeBytes("pm grant " + getApplicationContext().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS \n");
             os.writeBytes("exit\n");
@@ -419,6 +421,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         cookieManager.removeSessionCookies(null);
         cookieManager.setAcceptCookie(true);
 
+    }
+
+    private void executeCommandWithoutWait(String command) {
+        Log.d(TAG, "executeCommandWithoutWait");
+        try {
+            Process p = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(p.getOutputStream());
+            os.writeBytes(command + "\n");
+            os.writeBytes("exit\n");
+            os.flush();
+            Log.d(TAG, command);
+        } catch (IOException e) {
+            Log.e(TAG, "su command has failed due to: " + e.fillInStackTrace());
+        }
     }
 
    }
