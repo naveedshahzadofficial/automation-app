@@ -3,6 +3,17 @@ var verifyBtn = document.querySelector('#VerifyBtn');
 var linkBtn = document.querySelector('#link-btn a');
 var nextBtn = document.querySelector('#NextBtn');
 
+function elementExists(selector) {
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      const element = document.querySelector(selector);
+      if (element) {
+        clearInterval(interval);
+        resolve(element);
+      }
+    }, 100);
+  });
+}
 
 function callback(mutations, obs) {
   mutations.forEach(function(mutation) {
@@ -30,7 +41,38 @@ function callback(mutations, obs) {
   });
 }
 
+if(verifyBtn===null && linkBtn===null && nextBtn === null){
 
+    let observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (!mutation.addedNodes) return
+
+        for (let i = 0; i < mutation.addedNodes.length; i++) {
+          // do things to your newly added nodes here
+          let node = mutation.addedNodes[i]
+          if(node.tagName === "INPUT"){
+            const parentNode = node.parentNode;
+            const checkbox = frame.contentWindow.document.querySelector('input[type=checkbox]');
+            JSBridge.showToast(checkbox.type);
+
+            //node.checked = true;
+
+          }
+        }
+      })
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: false,
+      characterData: false,
+    })
+
+    /*elementExists('input[type=checkbox]').then((element) => {
+    JSBridge.showToast("Yeah!");
+    });*/
+}
 
 if(verifyBtn !== null){
 
