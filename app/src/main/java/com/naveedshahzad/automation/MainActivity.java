@@ -40,6 +40,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private ScrollView svWebView;
     private WebView wvChrome;
+
+    public ProgressBar pbWebView;
 
     private Resources resources;
     private InputStream inputStream;
@@ -106,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         etCount = findViewById(R.id.etCount);
         btStart = findViewById(R.id.btStart);
         svWebView = findViewById(R.id.svWebView);
+        wvChrome = findViewById(R.id.wvChrome);
+        pbWebView = findViewById(R.id.pbWebView);
         llForm = findViewById(R.id.llForm);
         spm = new SharedPreferencesManager(this);
 
@@ -149,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         });
         requestPermissions();
         securePermission();
+        wvChromeInitialize();
     }
 
 
@@ -260,16 +266,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.clearHistory();
         wvChrome.clearCache(true);
         wvChrome.clearFormData();
-        wvChrome.destroy();
-        svWebView.removeView(wvChrome);
-        wvChrome = null;
+        wvChrome.stopLoading();
+        cookieManager.removeAllCookies(null);
+        cookieManager.removeSessionCookies(null);
+        cookieManager.setAcceptCookie(true);
+        //wvChrome.destroy();
+        //svWebView.removeView(wvChrome);
+        //wvChrome = null;
     }
 
     public void startWork() {
         int total = Integer.parseInt(etCount.getText().toString());
         if(total >= counting) {
             btStart.setText("In Process (" + counting + ")");
-            this.wvChromeInitialize();
+            //this.wvChromeInitialize();
             wvChrome.loadUrl(etLink.getText().toString());
         }else{
             showToast("Your Count has been completed.");
@@ -377,10 +387,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     @SuppressLint("SetJavaScriptEnabled")
     private void wvChromeInitialize(){
-        wvChrome = new WebView(context);
-        wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        svWebView.addView(wvChrome);
+//        wvChrome = new WebView(context);
+//        wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//        svWebView.addView(wvChrome);
         WebSettings webSettings = wvChrome.getSettings();
+        webSettings.setUserAgentString("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);

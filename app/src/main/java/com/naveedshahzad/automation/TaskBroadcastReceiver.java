@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.concurrent.Executor;
@@ -18,9 +19,10 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         MainActivity activity = ((MainActivity) context);
+        activity.pbWebView.setVisibility(View.VISIBLE);
         Handler handler = new Handler(Looper.getMainLooper());
 
-        SystemClock.sleep(3000);
+        SystemClock.sleep(5000);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         activity.clearBrowsingData();
         executor.execute(new Runnable() {
@@ -30,7 +32,7 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
                 activity.setAirplaneMode(true);
                 SystemClock.sleep(1000);
                 activity.setAirplaneMode(false);
-                SystemClock.sleep(5000);
+                SystemClock.sleep(8000);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -38,6 +40,7 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
 
                         activity.setCounting();
                         activity.startWork();
+                        activity.pbWebView.setVisibility(View.GONE);
                     }
                 });
             }
