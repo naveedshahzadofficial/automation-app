@@ -43,7 +43,6 @@ public class JSBridge {
     @JavascriptInterface
     public void verifyHuman(){
         ((MainActivity) context).simulateTouch(253,630);
-        showToast("Doing click on it.");
     }
 }
 

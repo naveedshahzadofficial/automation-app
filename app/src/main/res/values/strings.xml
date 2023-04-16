@@ -3,7 +3,7 @@
     <string name="website_link">Website Link</string>
     <string name="default_website_link">https://gplinks.co/HxEb6uB</string>
     <string name="count">Count</string>
-    <string name="default_count">100</string>
+    <string name="default_count">10000</string>
     <string name="start">Start</string>
     <string name="menu_item">Menu Item</string>
 </resources>

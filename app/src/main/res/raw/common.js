@@ -42,7 +42,7 @@ if(verifyBtn===null && linkBtn===null && nextBtn === null){
 
                 setTimeout(function() {
                 JSBridge.verifyHuman();
-                            }, 13000);
+                            }, 20000);
               }
             }
           })
