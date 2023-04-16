@@ -27,11 +27,10 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
             @Override
             public void run() {
                 // Do Background work here
-                SystemClock.sleep(5000);
                 activity.setAirplaneMode(true);
-                SystemClock.sleep(5000);
+                SystemClock.sleep(1000);
                 activity.setAirplaneMode(false);
-                SystemClock.sleep(8000);
+                SystemClock.sleep(5000);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
