@@ -21,11 +21,13 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
@@ -437,4 +439,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
-   }
+    public void simulateTouch(int x, int y) {
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = SystemClock.uptimeMillis();
+        int action = MotionEvent.ACTION_DOWN;
+        int metaState = 0;
+        MotionEvent motionEvent = MotionEvent.obtain(
+                downTime, eventTime, action, x, y, metaState
+        );
+        dispatchTouchEvent(motionEvent);
+
+        action = MotionEvent.ACTION_UP;
+        motionEvent = MotionEvent.obtain(
+                downTime, eventTime, action, x, y, metaState
+        );
+        dispatchTouchEvent(motionEvent);
+    }
+}

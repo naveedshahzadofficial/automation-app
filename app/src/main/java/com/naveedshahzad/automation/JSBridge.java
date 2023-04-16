@@ -39,5 +39,11 @@ public class JSBridge {
         intent.putExtra("count", 1);
         context.sendBroadcast(intent);
     }
+
+    @JavascriptInterface
+    public void verifyHuman(){
+        ((MainActivity) context).simulateTouch(253,630);
+        showToast("Doing click on it.");
+    }
 }
 
