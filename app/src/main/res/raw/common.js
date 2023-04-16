@@ -8,17 +8,21 @@ function callback(mutations, obs) {
     if (mutation.type === 'attributes') {
       if (mutation.target.id === 'VerifyBtn' && mutation.target.hidden === false) {
             verifyBtn.click();
-            setTimeout(function() {
-            if(nextBtn.offsetParent === null){
-                         verifyBtn.click();
-            }
-            }, 5000);
+            var verifyInterval = setInterval(function() {
+               verifyBtn.click();
+             if(verifyBtn.target.hidden === true){
+                clearInterval(verifyInterval);
+                }
+            }, 3000);
       }
       else if (mutation.target.id ==='NextBtn' && mutation.target.hidden === false) {
             nextBtn.click();
-            setTimeout(function() {
-                              linkBtn.click();
-                          }, 5000);
+            var nextInterval = setInterval(function() {
+                           nextBtn.click();
+                         if(nextBtn.target.hidden === true){
+                            clearInterval(nextInterval);
+                            }
+                        }, 3000);
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               setTimeout(function() {
@@ -42,7 +46,7 @@ if(verifyBtn===null && linkBtn===null && nextBtn === null){
 
                 setTimeout(function() {
                 JSBridge.verifyHuman();
-                            }, 20000);
+                            }, 10000);
               }
             }
           })
