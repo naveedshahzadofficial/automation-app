@@ -2,27 +2,33 @@
 var verifyBtn = document.querySelector('#VerifyBtn');
 var linkBtn = document.querySelector('#link-btn a');
 var nextBtn = document.querySelector('#NextBtn');
+var verifyInterval = null;
+var nextInterval = null;
+
+function verifyClick(){
+verifyBtn.click();
+if(verifyBtn.hidden === true){
+clearInterval(verifyInterval);
+}
+    }
+
+function nextClick() {
+nextBtn.click();
+if(nextBtn.hidden === true){
+clearInterval(nextInterval);
+}
+    }
 
 function callback(mutations, obs) {
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes') {
       if (mutation.target.id === 'VerifyBtn' && mutation.target.hidden === false) {
             verifyBtn.click();
-            var verifyInterval = setInterval(function() {
-               verifyBtn.click();
-             if(verifyBtn.target.hidden === true){
-                clearInterval(verifyInterval);
-                }
-            }, 3000);
+            var verifyInterval = setInterval(verifyClick, 3000);
       }
       else if (mutation.target.id ==='NextBtn' && mutation.target.hidden === false) {
             nextBtn.click();
-            var nextInterval = setInterval(function() {
-                           nextBtn.click();
-                         if(nextBtn.target.hidden === true){
-                            clearInterval(nextInterval);
-                            }
-                        }, 3000);
+            var nextInterval = setInterval(nextClick, 3000);
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               setTimeout(function() {
@@ -32,6 +38,7 @@ function callback(mutations, obs) {
     }
   });
 }
+
 
 if(verifyBtn===null && linkBtn===null && nextBtn === null){
     let observer = new MutationObserver((mutations) => {
@@ -67,13 +74,8 @@ verifyBtnObserver.observe(verifyBtn, { attributes: true });
 var nextBtnObserver = new MutationObserver(callback);
 nextBtnObserver.observe(nextBtn, { attributes: true });
 
-if(verifyBtn.target.hidden === false){
-var verifyIntervalAfter = setInterval(function() {
-               verifyBtn.click();
-             if(verifyBtn.target.hidden === true){
-                clearInterval(verifyIntervalAfter);
-                }
-            }, 3000);
+if(verifyBtn.hidden === false){
+var verifyInterval = setInterval(verifyClick, 3000);
 }
 
 document.getElementById('myTimerDiv').style.display = 'none';
@@ -107,5 +109,7 @@ if(linkBtn !== null){
         }
      });
 }
+
+
 
 })();
