@@ -34,7 +34,6 @@ function callback(mutations, obs) {
 }
 
 if(verifyBtn===null && linkBtn===null && nextBtn === null){
-
     let observer = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
             if (!mutation.addedNodes) return
@@ -51,14 +50,12 @@ if(verifyBtn===null && linkBtn===null && nextBtn === null){
             }
           })
         })
-
-        observer.observe(document.body, {
+    observer.observe(document.body, {
           childList: true,
           subtree: true,
           attributes: false,
           characterData: false,
         })
-
 }
 
 if(verifyBtn !== null){
@@ -69,6 +66,15 @@ var verifyBtnObserver = new MutationObserver(callback);
 verifyBtnObserver.observe(verifyBtn, { attributes: true });
 var nextBtnObserver = new MutationObserver(callback);
 nextBtnObserver.observe(nextBtn, { attributes: true });
+
+if(verifyBtn.target.hidden === false){
+var verifyIntervalAfter = setInterval(function() {
+               verifyBtn.click();
+             if(verifyBtn.target.hidden === true){
+                clearInterval(verifyIntervalAfter);
+                }
+            }, 3000);
+}
 
 document.getElementById('myTimerDiv').style.display = 'none';
 document.getElementById('myNextInst').style.display = 'block';

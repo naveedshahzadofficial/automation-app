@@ -32,7 +32,7 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
                 activity.setAirplaneMode(true);
                 SystemClock.sleep(1000);
                 activity.setAirplaneMode(false);
-                SystemClock.sleep(8000);
+                SystemClock.sleep(12000);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
