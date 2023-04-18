@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private Button btStart;
     private Context context;
 
-    private ScrollView svWebView;
+    public ScrollView svWebView;
     private WebView wvChrome;
 
     public ProgressBar pbWebView;
@@ -109,6 +109,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         etCount = findViewById(R.id.etCount);
         btStart = findViewById(R.id.btStart);
         svWebView = findViewById(R.id.svWebView);
+        svWebView.fullScroll(View.FOCUS_DOWN);
+        svWebView.setSmoothScrollingEnabled(true);
+        svWebView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
         pbWebView = findViewById(R.id.pbWebView);
         llForm = findViewById(R.id.llForm);
         spm = new SharedPreferencesManager(this);
@@ -395,6 +399,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
+        wvChrome.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        wvChrome.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         wvChrome.addJavascriptInterface(new JSBridge(this.context), "JSBridge");
         wvChrome.setWebChromeClient(new WebChromeClient());
 

@@ -41,6 +41,11 @@ public class JSBridge {
     }
 
     @JavascriptInterface
+    public void scrollToContinue(){
+        ((MainActivity) context).svWebView.smoothScrollTo(0, 9300);
+    }
+
+    @JavascriptInterface
     public void verifyHuman(){
         ((MainActivity) context).simulateTouch(253,630);
     }

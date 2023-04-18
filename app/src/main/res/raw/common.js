@@ -5,30 +5,29 @@ var nextBtn = document.querySelector('#NextBtn');
 var verifyInterval = null;
 var nextInterval = null;
 
-function verifyClick(){
+var verifyClick=()=> {
 verifyBtn.click();
-if(verifyBtn.hidden === true){
+if(verifyBtn.style.display === 'none'){
 clearInterval(verifyInterval);
 }
-    }
+    };
 
-function nextClick() {
+var nextClick=()=>{
 nextBtn.click();
-if(nextBtn.hidden === true){
+if(nextBtn.style.display === 'none'){
 clearInterval(nextInterval);
 }
-    }
+    };
 
 function callback(mutations, obs) {
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes') {
-      if (mutation.target.id === 'VerifyBtn' && mutation.target.hidden === false) {
-            verifyBtn.click();
-            var verifyInterval = setInterval(verifyClick, 3000);
+      if (mutation.target.id === 'VerifyBtn' && mutation.target.style.display !== 'none') {
+            verifyInterval = setInterval(verifyClick, 1000);
       }
-      else if (mutation.target.id ==='NextBtn' && mutation.target.hidden === false) {
-            nextBtn.click();
-            var nextInterval = setInterval(nextClick, 3000);
+      else if (mutation.target.id ==='NextBtn' && mutation.target.style.display !== 'none') {
+            JSBridge.scrollToContinue();
+            nextInterval = setInterval(nextClick, 5000);
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               setTimeout(function() {
@@ -74,14 +73,9 @@ verifyBtnObserver.observe(verifyBtn, { attributes: true });
 var nextBtnObserver = new MutationObserver(callback);
 nextBtnObserver.observe(nextBtn, { attributes: true });
 
-if(verifyBtn.hidden === false){
-var verifyInterval = setInterval(verifyClick, 3000);
+if(verifyBtn.style.display !== 'none'){
+  verifyInterval = setInterval(verifyClick, 1000);
 }
-
-document.getElementById('myTimerDiv').style.display = 'none';
-document.getElementById('myNextInst').style.display = 'block';
-document.getElementById('VerifyBtn').style.display = 'block';
-
 }
 
 if(linkBtn !== null){
@@ -95,9 +89,9 @@ if(linkBtn !== null){
             x.setAttribute("id", "JSBridgeVisited");
             x.setAttribute("type", "hidden");
             linkBtn.append(x);
+            JSBridge.setCompleted();
             var get_link = document.querySelector('.get-link');
             get_link.click();
-            JSBridge.setCompleted();
             var cookieNames = document.cookie.split(';').map(function(cookie) {
               return cookie.split('=')[0].trim();
             });
