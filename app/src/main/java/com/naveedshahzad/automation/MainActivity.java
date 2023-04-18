@@ -303,8 +303,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             case R.id.menu_item:
                 if (llForm.getVisibility() == View.GONE) {
                     llForm.setVisibility(View.VISIBLE);
+                    svWebView.setVisibility(View.GONE);
                 } else {
                     llForm.setVisibility(View.GONE);
+                    svWebView.setVisibility(View.VISIBLE);
                 }
                 return true;
             default:

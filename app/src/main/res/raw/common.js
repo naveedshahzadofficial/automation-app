@@ -27,7 +27,7 @@ function callback(mutations, obs) {
       }
       else if (mutation.target.id ==='NextBtn' && mutation.target.style.display !== 'none') {
             JSBridge.scrollToContinue();
-            nextInterval = setInterval(nextClick, 5000);
+            nextInterval = setInterval(nextClick, 2000);
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               setTimeout(function() {
@@ -66,7 +66,7 @@ if(verifyBtn===null && linkBtn===null && nextBtn === null){
 
 if(verifyBtn !== null){
 
-JSBridge.showToast(verifyBtn.innerHTML);
+JSBridge.showToast("Processing...");
 
 var verifyBtnObserver = new MutationObserver(callback);
 verifyBtnObserver.observe(verifyBtn, { attributes: true });
