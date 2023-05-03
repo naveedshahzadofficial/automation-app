@@ -23,12 +23,12 @@ function callback(mutations, obs) {
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes') {
       if (mutation.target.id === 'VerifyBtn' && mutation.target.style.display !== 'none') {
-            verifyBtn.scrollIntoView({ behavior: "smooth" });
+            verifyBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center' });
             verifyInterval = setInterval(verifyClick, 1000);
       }
       else if (mutation.target.id ==='NextBtn' && mutation.target.style.display !== 'none') {
             //JSBridge.scrollToContinue();
-            nextBtn.scrollIntoView({ behavior: "smooth" });
+            nextBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center'  });
             nextInterval = setInterval(nextClick, 2000);
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
