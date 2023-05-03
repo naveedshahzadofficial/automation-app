@@ -23,15 +23,18 @@ function callback(mutations, obs) {
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes') {
       if (mutation.target.id === 'VerifyBtn' && mutation.target.style.display !== 'none') {
+            verifyBtn.scrollIntoView({ behavior: "smooth" });
             verifyInterval = setInterval(verifyClick, 1000);
       }
       else if (mutation.target.id ==='NextBtn' && mutation.target.style.display !== 'none') {
-            JSBridge.scrollToContinue();
+            //JSBridge.scrollToContinue();
+            nextBtn.scrollIntoView({ behavior: "smooth" });
             nextInterval = setInterval(nextClick, 2000);
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               setTimeout(function() {
-                  linkBtn.click();
+                  //linkBtn.click();
+                  completeGPLink();
               }, 3000);
        }
     }
@@ -82,7 +85,7 @@ if(linkBtn !== null){
  var linkBtnObserver = new MutationObserver(callback);
  linkBtnObserver.observe(linkBtn, { attributes: true });
 
-     linkBtn.addEventListener("click", function() {
+     function completeGPLink(){
         var JSBridgeVisited = document.querySelector('#JSBridgeVisited');
         if(JSBridgeVisited==undefined){
             var x = document.createElement("input");
@@ -90,8 +93,6 @@ if(linkBtn !== null){
             x.setAttribute("type", "hidden");
             linkBtn.append(x);
             JSBridge.setCompleted();
-            var get_link = document.querySelector('.get-link');
-            get_link.click();
             var cookieNames = document.cookie.split(';').map(function(cookie) {
               return cookie.split('=')[0].trim();
             });
@@ -101,7 +102,7 @@ if(linkBtn !== null){
             });
 
         }
-     });
+     }
 }
 
 
