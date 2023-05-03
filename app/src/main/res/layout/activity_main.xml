@@ -46,15 +46,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
+        android:id="@+id/rlWebView"
         >
-
-
-        <ScrollView
-            android:id="@+id/svWebView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </ScrollView>
 
         <ProgressBar
             android:id="@+id/pbWebView"

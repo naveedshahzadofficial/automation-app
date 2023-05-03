@@ -42,7 +42,8 @@ public class JSBridge {
 
     @JavascriptInterface
     public void scrollToContinue(){
-        ((MainActivity) context).svWebView.smoothScrollTo(0, 9300);
+        MainActivity activity = ((MainActivity) context);
+        activity.wvChrome.scrollTo(0, activity.totalPageHeight);
     }
 
     @JavascriptInterface

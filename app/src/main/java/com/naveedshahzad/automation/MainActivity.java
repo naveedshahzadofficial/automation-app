@@ -41,6 +41,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -65,8 +66,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private Button btStart;
     private Context context;
 
-    public ScrollView svWebView;
-    private WebView wvChrome;
+    public RelativeLayout rlWebView;
+    public WebView wvChrome;
 
     public ProgressBar pbWebView;
 
@@ -79,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private LinearLayout llForm;
     private String saveWebsiteLink;
+
+    public int totalPageHeight;
 
     ActivityResultLauncher<String> requestPermissionLauncher;
 
@@ -108,10 +111,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         etLink = findViewById(R.id.etLink);
         etCount = findViewById(R.id.etCount);
         btStart = findViewById(R.id.btStart);
-        svWebView = findViewById(R.id.svWebView);
-        svWebView.fullScroll(View.FOCUS_DOWN);
-        svWebView.setSmoothScrollingEnabled(true);
-        svWebView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        rlWebView = findViewById(R.id.rlWebView);
 
         pbWebView = findViewById(R.id.pbWebView);
         llForm = findViewById(R.id.llForm);
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.clearCache(true);
         wvChrome.clearFormData();
         wvChrome.destroy();
-        svWebView.removeView(wvChrome);
+        rlWebView.removeView(wvChrome);
         wvChrome = null;
     }
 
@@ -303,10 +303,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             case R.id.menu_item:
                 if (llForm.getVisibility() == View.GONE) {
                     llForm.setVisibility(View.VISIBLE);
-                    svWebView.setVisibility(View.GONE);
+                    rlWebView.setVisibility(View.GONE);
                 } else {
                     llForm.setVisibility(View.GONE);
-                    svWebView.setVisibility(View.VISIBLE);
+                    rlWebView.setVisibility(View.VISIBLE);
                 }
                 return true;
             default:
@@ -390,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private void wvChromeInitialize(){
         wvChrome = new WebView(context);
         wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        svWebView.addView(wvChrome);
+        rlWebView.addView(wvChrome);
         WebSettings webSettings = wvChrome.getSettings();
         //webSettings.setUserAgentString("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
         webSettings.setJavaScriptEnabled(true);
@@ -401,8 +401,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
-        wvChrome.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        webSettings.setLoadsImagesAutomatically(true);
+        wvChrome.setScrollbarFadingEnabled(true);
+        wvChrome.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
         wvChrome.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        wvChrome.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         wvChrome.addJavascriptInterface(new JSBridge(this.context), "JSBridge");
         wvChrome.setWebChromeClient(new WebChromeClient());
 
@@ -413,6 +416,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                totalPageHeight = view.getContentHeight();
                 injectJavaScript(view);
             }
             @Override
