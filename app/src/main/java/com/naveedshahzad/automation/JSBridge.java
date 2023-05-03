@@ -43,7 +43,7 @@ public class JSBridge {
     @JavascriptInterface
     public void scrollToContinue(){
         MainActivity activity = ((MainActivity) context);
-        activity.wvChrome.scrollTo(0, activity.totalPageHeight);
+        activity.wvChrome.scrollTo(0, 1000);
     }
 
     @JavascriptInterface

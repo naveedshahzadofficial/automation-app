@@ -81,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private LinearLayout llForm;
     private String saveWebsiteLink;
 
-    public int totalPageHeight;
-
     ActivityResultLauncher<String> requestPermissionLauncher;
 
 
@@ -417,7 +415,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                totalPageHeight = view.getContentHeight();
                 injectJavaScript(view);
             }
             @Override
