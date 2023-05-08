@@ -2,8 +2,10 @@
 var verifyBtn = document.querySelector('#VerifyBtn');
 var linkBtn = document.querySelector('#link-btn a');
 var nextBtn = document.querySelector('#NextBtn');
+var closeStickyAdd = document.querySelector('#footer-sticky-ad .close-sticky-ad');
 var verifyInterval = null;
 var nextInterval = null;
+var adsInterval = null;
 
 var verifyClick=()=> {
 verifyBtn.click();
@@ -14,23 +16,37 @@ clearInterval(verifyInterval);
 
 var nextClick=()=>{
 nextBtn.click();
+adsInterval = setInterval(adsClick, 3000);
+clearInterval(nextInterval);
 if(nextBtn.style.display === 'none'){
 clearInterval(nextInterval);
 }
     };
 
+var adsClick=()=>{
+JSBridge.popUpClick();
+};
+
 function callback(mutations, obs) {
   mutations.forEach(function(mutation) {
     if (mutation.type === 'attributes') {
       if (mutation.target.id === 'VerifyBtn' && mutation.target.style.display !== 'none') {
+            closeStickyAdd.click();
             JSBridge.scrollToContinue();
             verifyBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center' });
             verifyInterval = setInterval(verifyClick, 3000);
       }
       else if (mutation.target.id ==='NextBtn' && mutation.target.style.display !== 'none') {
+        var isPopUp = document.querySelector('#PopUpChecked');
+         if(isPopUp==undefined){
+            var x = document.createElement("input");
+            x.setAttribute("id", "PopUpChecked");
+            x.setAttribute("type", "hidden");
+            nextBtn.append(x);
             JSBridge.scrollToContinue();
             nextBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center'  });
             nextInterval = setInterval(nextClick, 3000);
+         }
       }
       else if (linkBtn !== null && mutation.attributeName === 'class' && linkBtn.classList.value==='btn btn-primary rounded get-link xclude-popad' && linkBtn.innerHTML=="Get Link") {
               setTimeout(function() {

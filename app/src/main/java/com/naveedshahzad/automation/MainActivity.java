@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -264,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void clearBrowsingData(){
+        deleteCache(context);
         wvChrome.stopLoading();
         wvChrome.clearHistory();
         wvChrome.clearCache(true);
@@ -388,19 +390,22 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     @SuppressLint("SetJavaScriptEnabled")
     private void wvChromeInitialize(){
         wvChrome = new WebView(context);
-        wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        wvChrome.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         rlWebView.addView(wvChrome);
         WebSettings webSettings = wvChrome.getSettings();
         //webSettings.setUserAgentString("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
-        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webSettings.setSupportMultipleWindows(true);
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setLoadsImagesAutomatically(true);
+        wvChrome.clearHistory();
+        wvChrome.clearFormData();
+        wvChrome.clearCache(true);
         wvChrome.setScrollbarFadingEnabled(true);
         wvChrome.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
         wvChrome.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
@@ -471,4 +476,29 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         );
         dispatchTouchEvent(motionEvent);
     }
+
+    public static void deleteCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            deleteDir(dir);
+        } catch (Exception e) {}
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+            return dir.delete();
+        } else if(dir!= null && dir.isFile()) {
+            return dir.delete();
+        } else {
+            return false;
+        }
+    }
+
 }

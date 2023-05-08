@@ -50,5 +50,10 @@ public class JSBridge {
     public void verifyHuman(){
         ((MainActivity) context).simulateTouch(253,630);
     }
+
+    @JavascriptInterface
+    public void popUpClick(){
+        ((MainActivity) context).simulateTouch(1020,380);
+    }
 }
 
