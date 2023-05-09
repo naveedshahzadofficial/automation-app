@@ -8,11 +8,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -263,7 +267,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void clearBrowsingData(){
-        deleteCache(context);
         wvChrome.stopLoading();
         wvChrome.clearHistory();
         wvChrome.clearCache(true);
@@ -475,28 +478,25 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         dispatchTouchEvent(motionEvent);
     }
 
-    public static void deleteCache(Context context) {
-        try {
-            File dir = context.getCacheDir();
-            deleteDir(dir);
-        } catch (Exception e) {}
+    public void deleteData(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        am.clearApplicationUserData();
     }
 
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-            return dir.delete();
-        } else if(dir!= null && dir.isFile()) {
-            return dir.delete();
-        } else {
-            return false;
+    public void deleteDataCmd() {
+        String packageName = "com.naveedshahzad.automation"; // replace with the actual package name of the app
+        try {
+            Runtime runtime = Runtime.getRuntime();
+            runtime.exec("pm clear " + packageName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+        if (launchIntent != null) {
+            startActivity(launchIntent);
         }
     }
+
 
 }

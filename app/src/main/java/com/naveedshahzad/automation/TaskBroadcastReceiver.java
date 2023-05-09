@@ -37,7 +37,6 @@ public class TaskBroadcastReceiver extends BroadcastReceiver {
                     @Override
                     public void run() {
                         // Do Ui Thread work here
-
                         activity.setCounting();
                         activity.startWork();
                         activity.pbWebView.setVisibility(View.GONE);
