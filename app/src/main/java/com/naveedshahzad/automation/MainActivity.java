@@ -143,13 +143,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 }
 
                if (inProgress) {
-                    // Stop the work if it's in progress
                     stopWork();
                     inProgress = false;
                 } else {
                     llForm.setVisibility(View.GONE);
                     rlWebView.setVisibility(View.VISIBLE);
-                    // Start the work if it's not in progress
                     startWork();
                     inProgress = true;
                 }
