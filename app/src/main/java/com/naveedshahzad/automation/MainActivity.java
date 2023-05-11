@@ -274,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.destroy();
         rlWebView.removeView(wvChrome);
         wvChrome = null;
+        deleteDataCmd();
     }
 
     public void startWork() {

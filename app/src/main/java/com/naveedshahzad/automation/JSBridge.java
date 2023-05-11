@@ -1,5 +1,6 @@
 package com.naveedshahzad.automation;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -41,9 +42,10 @@ public class JSBridge {
     }
 
     @JavascriptInterface
-    public void scrollToContinue(){
+    public void scrollToContinue(int x , int y){
         MainActivity activity = ((MainActivity) context);
-        activity.wvChrome.scrollTo(0, 3000);
+        ObjectAnimator.ofInt(activity.wvChrome, "scrollY", y).setDuration(500).start();
+        //activity.wvChrome.scrollTo(x, y);
     }
 
     @JavascriptInterface

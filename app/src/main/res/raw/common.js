@@ -6,7 +6,6 @@ var closeStickyAdd = document.querySelector('#footer-sticky-ad .close-sticky-ad'
 var verifyInterval = null;
 var nextInterval = null;
 var adsInterval = null;
-
 var verifyClick=()=> {
 verifyBtn.click();
 if(verifyBtn.style.display === 'none'){
@@ -32,8 +31,9 @@ function callback(mutations, obs) {
     if (mutation.type === 'attributes') {
       if (mutation.target.id === 'VerifyBtn' && mutation.target.style.display !== 'none') {
             closeStickyAdd.click();
-            JSBridge.scrollToContinue();
-            verifyBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center' });
+            var yScroll = Math.floor(Math.random() * (1000 - 500 + 1) + 500);
+            JSBridge.scrollToContinue(0, yScroll);
+            //verifyBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center' });
             verifyInterval = setInterval(verifyClick, 3000);
       }
       else if (mutation.target.id ==='NextBtn' && mutation.target.style.display !== 'none') {
@@ -43,8 +43,9 @@ function callback(mutations, obs) {
             x.setAttribute("id", "PopUpChecked");
             x.setAttribute("type", "hidden");
             nextBtn.append(x);
-            JSBridge.scrollToContinue();
-            nextBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center'  });
+            var yScroll = Math.floor(Math.random() * (12000 - 10000 + 1) + 10000);
+            JSBridge.scrollToContinue(0, yScroll);
+            //nextBtn.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'center'  });
             nextInterval = setInterval(nextClick, 3000);
          }
       }
