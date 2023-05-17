@@ -264,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         super.onStop();
         unregisterReceiver(airplaneModeChangeReceiver);
         unregisterReceiver(tbr);
+        clearBrowsingData();
     }
 
     public void clearBrowsingData(){
@@ -412,17 +413,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         wvChrome.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
         wvChrome.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         wvChrome.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        wvChrome.addJavascriptInterface(new JSBridge(this.context), "JSBridge");
+        //wvChrome.addJavascriptInterface(new JSBridge(this.context), "JSBridge");
         wvChrome.setWebChromeClient(new WebChromeClient());
 
-        wvChrome.evaluateJavascript(this.commonJsFile, null);
+        //wvChrome.evaluateJavascript(this.commonJsFile, null);
 
         wvChrome.setWebViewClient(new WebViewClient(){
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                injectJavaScript(view);
+                //injectJavaScript(view);
             }
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
